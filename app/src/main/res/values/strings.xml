@@ -8,4 +8,5 @@
     <string name="bottom_navigation_home">Beranda</string>
     <string name="bottom_navigation_profile">Profil</string>
 
+    <string name="profile">Profil Pengembang</string>
 </resources>

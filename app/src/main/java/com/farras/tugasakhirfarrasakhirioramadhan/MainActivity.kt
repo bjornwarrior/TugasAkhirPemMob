@@ -4,34 +4,60 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.farras.tugasakhirfarrasakhirioramadhan.component.BottomNavigation
+import com.farras.tugasakhirfarrasakhirioramadhan.component.SampingNavigationRail
+import com.farras.tugasakhirfarrasakhirioramadhan.navigation.Screen
+import com.farras.tugasakhirfarrasakhirioramadhan.screen.DetailScreen
 import com.farras.tugasakhirfarrasakhirioramadhan.screen.MainScreen
+import com.farras.tugasakhirfarrasakhirioramadhan.screen.ProfileScreen
 import com.farras.tugasakhirfarrasakhirioramadhan.ui.theme.TugasAkhirFarrasAkhirioRamadhanTheme
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TugasAkhirFarrasAkhirioRamadhanTheme {
-                Scaffold(
-                    bottomBar = { BottomNavigation() }
-                ) { paddingValues ->
-                    Surface(
-                        modifier = Modifier.fillMaxSize().padding(paddingValues),
-                        color = Color(0xFFF5F0EE)
-                    ) {
-                        MainScreen()
+                val windowSizeClass = calculateWindowSizeClass(this)
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.Home.route
+                ) {
+                    composable(Screen.Home.route) {
+                        val widthClass = windowSizeClass.widthSizeClass
+                        if (widthClass == WindowWidthSizeClass.Compact) {
+                            AppPortrait(navController)
+                        } else {
+                            AppLandscape(navController)
+                        }
+                    }
+                    composable(Screen.Profile.route) {
+                        ProfileScreen(navController)
+                    }
+                    composable(
+                        route = Screen.Detail.route,
+                        arguments = listOf(navArgument("namaKuliner") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val namaKuliner = backStackEntry.arguments?.getString("namaKuliner") ?: ""
+                        DetailScreen(namaKuliner = namaKuliner, navController = navController)
                     }
                 }
             }
@@ -40,34 +66,77 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun BottomNavigation(modifier: Modifier = Modifier) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier
-    ) {
-        NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.Home, contentDescription = null) },
-            label = { Text(stringResource(R.string.bottom_navigation_home)) },
-            selected = true,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
-            label = { Text(stringResource(R.string.bottom_navigation_profile)) },
-            selected = false,
-            onClick = {}
-        )
+fun AppPortrait(navController: NavController) {
+    Scaffold(
+        bottomBar = { BottomNavigation(navController, currentRoute = Screen.Home.route) }
+    ) { padding ->
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            color = Color(0xFFF5F0EE)
+        ) {
+            MainScreen(navController)
+        }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF5F0EE, showSystemUi = true)
 @Composable
-fun AppPreview() {
+fun AppLandscape(navController: NavController) {
+    Surface(color = Color(0xFFF5F0EE)) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            SampingNavigationRail(navController, currentRoute = Screen.Home.route)
+            MainScreen(navController, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp", name = "Interactive App Preview - Portrait")
+@Composable
+fun FullAppPortraitPreview() {
     TugasAkhirFarrasAkhirioRamadhanTheme {
-        Scaffold(
-            bottomBar = { BottomNavigation() }
-        ) { padding ->
-            MainScreen(Modifier.padding(padding))
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route
+        ) {
+            composable(Screen.Home.route) {
+                AppPortrait(navController)
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen(navController)
+            }
+            composable(
+                route = Screen.Detail.route,
+                arguments = listOf(navArgument("namaKuliner") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val namaKuliner = backStackEntry.arguments?.getString("namaKuliner") ?: "Kuliner Pilihan"
+                DetailScreen(namaKuliner = namaKuliner, navController = navController)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=891dp,height=411dp,orientation=landscape", name = "Interactive App Preview - Landscape")
+@Composable
+fun FullAppLandscapePreview() {
+    TugasAkhirFarrasAkhirioRamadhanTheme {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route
+        ) {
+            composable(Screen.Home.route) {
+                AppLandscape(navController)
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen(navController)
+            }
+            composable(
+                route = Screen.Detail.route,
+                arguments = listOf(navArgument("namaKuliner") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val namaKuliner = backStackEntry.arguments?.getString("namaKuliner") ?: "Kuliner Pilihan"
+                DetailScreen(namaKuliner = namaKuliner, navController = navController)
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.farras.tugasakhirfarrasakhirioramadhan.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -11,15 +12,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.farras.tugasakhirfarrasakhirioramadhan.R
 import com.farras.tugasakhirfarrasakhirioramadhan.component.HomeSection
 import com.farras.tugasakhirfarrasakhirioramadhan.component.KategoriBulat
 import com.farras.tugasakhirfarrasakhirioramadhan.component.RekomendasiCard
 import com.farras.tugasakhirfarrasakhirioramadhan.component.SearchBar
 import com.farras.tugasakhirfarrasakhirioramadhan.data.KulinerItem
+import com.farras.tugasakhirfarrasakhirioramadhan.navigation.Screen
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
     var searchQuery by remember { mutableStateOf("") }
 
     Column(
@@ -30,29 +33,27 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) {
         Spacer(Modifier.height(16.dp))
 
-        // 1. Search Bar
         SearchBar(
             query = searchQuery,
             onQueryChange = { searchQuery = it },
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        // 2. Section Kategori Bulat (LazyRow)
         HomeSection(title = R.string.align_your_body) {
-            AlignYourBodyRow()
+            AlignYourBodyRow(navController)
         }
 
-        // 3. Section Rekomendasi (LazyHorizontalGrid)
         HomeSection(title = R.string.favorite_collections) {
-            FavoriteCollectionsGrid()
+            FavoriteCollectionsGrid(navController)
         }
 
         Spacer(Modifier.height(16.dp))
     }
 }
 
+// GANTI BAGIAN COMSAPABLE INI SAJA DI FILE MAINSCREEN.KT
 @Composable
-fun AlignYourBodyRow(modifier: Modifier = Modifier) {
+fun AlignYourBodyRow(navController: NavController, modifier: Modifier = Modifier) {
     val kategoriList = remember {
         listOf(
             KulinerItem(R.drawable.sate_ayam, "Sate Ayam"),
@@ -69,13 +70,17 @@ fun AlignYourBodyRow(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         items(kategoriList) { item ->
-            KategoriBulat(item = item)
+            Box(modifier = Modifier.clickable {
+                navController.navigate(Screen.Detail.createRoute(item.title))
+            }) {
+                KategoriBulat(item = item)
+            }
         }
     }
 }
-
+// GANTI BAGIAN COMSAPABLE INI SAJA DI FILE MAINSCREEN.KT
 @Composable
-fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) {
+fun FavoriteCollectionsGrid(navController: NavController, modifier: Modifier = Modifier) {
     val rekomendasiList = remember {
         listOf(
             KulinerItem(R.drawable.kuliner_nusantara, "Kuliner Nusantara"),
@@ -95,7 +100,11 @@ fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) {
         items(rekomendasiList) { item ->
             RekomendasiCard(
                 item = item,
-                modifier = Modifier.height(80.dp)
+                modifier = Modifier
+                    .height(80.dp)
+                    .clickable {
+                        navController.navigate(Screen.Detail.createRoute(item.title))
+                    }
             )
         }
     }
