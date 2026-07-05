@@ -1,30 +1,58 @@
 package com.farras.tugasakhirfarrasakhirioramadhan.screen
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.farras.tugasakhirfarrasakhirioramadhan.R
+import com.farras.tugasakhirfarrasakhirioramadhan.component.HomeSection
 import com.farras.tugasakhirfarrasakhirioramadhan.component.KategoriBulat
 import com.farras.tugasakhirfarrasakhirioramadhan.component.RekomendasiCard
 import com.farras.tugasakhirfarrasakhirioramadhan.component.SearchBar
 import com.farras.tugasakhirfarrasakhirioramadhan.data.KulinerItem
-import com.farras.tugasakhirfarrasakhirioramadhan.R
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    // State Hoisting: Mengontrol state pencarian teks di tingkat Screen
     var searchQuery by remember { mutableStateOf("") }
 
-    // Mock data kuliner
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 16.dp)
+    ) {
+        Spacer(Modifier.height(16.dp))
+
+        // 1. Search Bar
+        SearchBar(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it },
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        // 2. Section Kategori Bulat (LazyRow)
+        HomeSection(title = R.string.align_your_body) {
+            AlignYourBodyRow()
+        }
+
+        // 3. Section Rekomendasi (LazyHorizontalGrid)
+        HomeSection(title = R.string.favorite_collections) {
+            FavoriteCollectionsGrid()
+        }
+
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun AlignYourBodyRow(modifier: Modifier = Modifier) {
     val kategoriList = remember {
         listOf(
             KulinerItem(R.drawable.sate_ayam, "Sate Ayam"),
@@ -35,7 +63,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
         )
     }
 
-    // PERUBAHAN: Mengarahkan resource dummy ke drawable rekomendasi asli milikmu
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = modifier
+    ) {
+        items(kategoriList) { item ->
+            KategoriBulat(item = item)
+        }
+    }
+}
+
+@Composable
+fun FavoriteCollectionsGrid(modifier: Modifier = Modifier) {
     val rekomendasiList = remember {
         listOf(
             KulinerItem(R.drawable.kuliner_nusantara, "Kuliner Nusantara"),
@@ -45,53 +85,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(vertical = 16.dp)
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier.height(168.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Komponen SearchBar
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        // Section Kategori Bulat
-        Text(
-            text = "Eksplor Rasa Kuliner",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
-            color = Color.Black
-        )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(kategoriList) { item ->
-                KategoriBulat(item = item)
-            }
-        }
-
-        // Section Rekomendasi Card
-        Text(
-            text = "Koleksi Rekomendasi",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
-            color = Color.Black
-        )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(rekomendasiList) { item ->
-                RekomendasiCard(item = item)
-            }
+        items(rekomendasiList) { item ->
+            RekomendasiCard(
+                item = item,
+                modifier = Modifier.height(80.dp)
+            )
         }
     }
 }

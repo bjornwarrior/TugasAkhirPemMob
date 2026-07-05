@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Tugas Akhir Farras Akhirio Ramadhan</string>
+    <!-- Judul Section Kuliner -->
+    <string name="align_your_body">Eksplor Rasa Kuliner</string>
+    <string name="favorite_collections">Koleksi Rekomendasi</string>
+
+    <!-- Menu Navigasi Bawah -->
+    <string name="bottom_navigation_home">Beranda</string>
+    <string name="bottom_navigation_profile">Profil</string>
+
 </resources>
